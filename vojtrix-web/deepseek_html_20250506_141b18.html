@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vojtrix | Cosmic Reveal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+        
+        :root {
+            --main-blue: #0a192f;
+            --neon-blue: #00f3ff;
+            --deep-space: #020c1b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--deep-space);
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Kosmické pozadí */
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .nebula {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(0, 243, 255, 0.1) 0%, 
+                rgba(10, 25, 47, 0.8) 60%);
+            animation: nebulaFlow 40s linear infinite;
+            filter: blur(80px);
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: 
+                starPulse 4s infinite,
+                starDrift 20s infinite;
+        }
+
+        .comet {
+            position: absolute;
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                rgba(0, 243, 255, 0) 0%, 
+                rgba(0, 243, 255, 0.8) 50%, 
+                rgba(0, 243, 255, 0) 100%);
+            animation: cometFly 8s linear infinite;
+            filter: drop-shadow(0 0 10px var(--neon-blue));
+        }
+
+        /* Intro screen */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(ellipse at center, var(--main-blue) 0%, var(--deep-space) 100%);
+            z-index: 1000;
+            transition: opacity 0.8s;
+        }
+
+        .intro-content {
+            padding: 40px;
+            border: 2px solid var(--neon-blue);
+            background: rgba(0, 0, 0, 0.3);
+            clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+            animation: introGlow 2s infinite;
+        }
+
+        #intro h2 {
+            color: var(--neon-blue);
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 0 0 30px var(--neon-blue);
+            letter-spacing: 4px;
+        }
+
+        /* Hlavní obsah */
+        .main-content {
+            position: relative;
+            text-align: center;
+            padding: 60px;
+            background: rgba(10, 25, 47, 0.9);
+            border: 2px solid var(--neon-blue);
+            transform: scale(0);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+        }
+
+        .cyber-text {
+            font-size: 5em;
+            margin: 0;
+            color: var(--neon-blue);
+            text-shadow: 0 0 40px var(--neon-blue);
+            position: relative;
+            animation: textFloat 3s ease-in-out infinite;
+        }
+
+        /* Animace */
+        @keyframes nebulaFlow {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes cometFly {
+            0% { transform: translate(-100vw, -100vh) rotate(-45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translate(100vw, 100vh) rotate(-45deg); opacity: 0; }
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        @keyframes starDrift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        @keyframes textFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes introGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.3); }
+            50% { box-shadow: 0 0 20px 5px rgba(0, 243, 255, 0.3); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Kosmické pozadí -->
+    <div class="cosmic-bg">
+        <div class="nebula"></div>
+    </div>
+
+    <!-- Intro Screen -->
+    <div id="intro">
+        <div class="intro-content">
+            <h2>CLICK TO REVEAL</h2>
+        </div>
+    </div>
+
+    <!-- Hlavní obsah -->
+    <div class="main-content">
+        <div class="cyber-text">VOJTRIX</div>
+    </div>
+
+    <!-- YouTube Player -->
+    <div id="yt-player"></div>
+
+    <script>
+        // Generování kosmického pozadí
+        function createCosmicBackground() {
+            const bg = document.querySelector('.cosmic-bg');
+            
+            // Vrstvy hvězd
+            const layers = [80, 50, 30];
+            layers.forEach((count, index) => {
+                for(let i = 0; i < count; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.cssText = `
+                        left: ${Math.random() * 100}%;
+                        top: ${Math.random() * 100}%;
+                        width: ${(Math.random() * 3 + 1) / (index + 1)}px;
+                        height: ${(Math.random() * 3 + 1) / (index + 1)}px;
+                        animation-duration: ${Math.random() * 4 + 2}s, ${Math.random() * 20 + 10}s;
+                        opacity: ${Math.random() * 0.7 + 0.3};
+                    `;
+                    bg.appendChild(star);
+                }
+            });
+
+            // Komety
+            for(let i = 0; i < 3; i++) {
+                const comet = document.createElement('div');
+                comet.className = 'comet';
+                comet.style.cssText = `
+                    top: ${Math.random() * 100}%;
+                    left: ${Math.random() * 100}%;
+                    animation-delay: ${Math.random() * -8}s;
+                `;
+                bg.appendChild(comet);
+            }
+        }
+
+        // Click handler
+        document.getElementById('intro').addEventListener('click', function() {
+            this.style.opacity = '0';
+            this.style.pointerEvents = 'none';
+            
+            document.querySelector('.main-content').style.transform = 'scale(1)';
+            document.querySelector('.main-content').style.opacity = '1';
+
+            // YouTube player
+            new YT.Player('yt-player', {
+                height: '0',
+                width: '0',
+                videoId: 'pQsF3pzOc54',
+                playerVars: {
+                    autoplay: 1,
+                    loop: 1,
+                    playlist: 'pQsF3pzOc54',
+                    controls: 0
+                },
+                events: {
+                    onReady: (e) => e.target.playVideo()
+                }
+            });
+        });
+
+        // Inicializace
+        window.onload = () => {
+            createCosmicBackground();
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(tag);
+        };
+    </script>
+</body>
+</html>
